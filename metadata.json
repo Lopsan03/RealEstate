@@ -1,0 +1,7 @@
+{
+  "name": "Ejemplo Real Estate Portfolio",
+  "description": "A high-end real estate portfolio website for Ejemplo Real Estate by Agente Ejemplo, featuring property listings, PDF generation, QR codes, and an admin dashboard.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
