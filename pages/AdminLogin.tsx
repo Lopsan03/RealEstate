@@ -12,12 +12,27 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   const [pass, setPass] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user === 'admin' && pass === 'prosper2024') {
-      onLogin({ username: AGENT_NAME });
-    } else {
-      setError('Credenciales inválidas. Intenta admin / prosper2024');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+      });
+
+      if (res.ok) {
+        // store admin password locally so we can send it in write requests
+        if (typeof window !== 'undefined') localStorage.setItem('admin_pass', pass);
+        onLogin({ username: AGENT_NAME });
+        return;
+      }
+
+      setError('Credenciales inválidas. Intenta nuevamente.');
+    } catch (err) {
+      console.error('Login error', err);
+      setError('Error de conexión. Intenta más tarde.');
     }
   };
 

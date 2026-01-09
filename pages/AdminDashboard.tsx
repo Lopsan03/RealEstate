@@ -24,8 +24,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     refreshData();
   }, []);
 
-  const refreshData = () => {
-    setProperties(storageService.getProperties());
+  const refreshData = async () => {
+    setProperties(await storageService.getProperties());
     setLeads(storageService.getLeads());
   };
 
@@ -38,12 +38,12 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDeleteProperty = () => {
+  const confirmDeleteProperty = async () => {
     if (pendingDeleteId) {
-      storageService.deleteProperty(pendingDeleteId);
+      await storageService.deleteProperty(pendingDeleteId);
       setPendingDeleteId(null);
       setDeleteConfirmOpen(false);
-      refreshData();
+      await refreshData();
     }
   };
 
@@ -81,7 +81,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveProperty = (e: React.FormEvent) => {
+  const handleSaveProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     // Ensure title exists and price has been provided (allow 0 as a valid price)
     if (editingProperty && editingProperty.title && editingProperty.price !== undefined) {
@@ -101,10 +101,10 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         isActive: editingProperty.isActive ?? true,
         createdAt: editingProperty.createdAt ?? Date.now()
       };
-      storageService.saveProperty(propertyToSave);
+      await storageService.saveProperty(propertyToSave);
       setIsModalOpen(false);
       setEditingProperty(null);
-      refreshData();
+      await refreshData();
     }
   };
 
@@ -279,8 +279,29 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                       <span>Agregar Nueva Propiedad</span>
                     </button>
                     <button 
-                      onClick={() => setActiveTab('leads')}
+                      onClick={async () => {
+                        if (!confirm('¿Deseas migrar los datos locales al servidor (supabase)? Esta acción puede sobrescribir datos en la base de datos.')) return;
+                        const props = JSON.parse(localStorage.getItem('prosper_properties') || '[]');
+                        const adminPass = typeof window !== 'undefined' ? localStorage.getItem('admin_pass') : null;
+                        try {
+                          const res = await fetch('/api/migrate', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(adminPass ? { 'x-admin-pass': adminPass } : {}) }, body: JSON.stringify(props) });
+                          if (!res.ok) throw new Error('Migration failed');
+                          const data = await res.json();
+                          alert(`Migración completada: ${data.inserted || 'ok'}`);
+                          refreshData();
+                        } catch (err) {
+                          alert('Migración fallida. Revisa la consola para más detalles.');
+                          console.error(err);
+                        }
+                      }}
                       className="w-full bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-5 rounded-[24px] flex items-center justify-center space-x-3 transition shadow-sm"
+                    >
+                      <Users className="h-5 w-5" />
+                      <span>Migrar Datos</span>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('leads')}
+                      className="w-full hidden md:inline bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-5 rounded-[24px] flex items-center justify-center space-x-3 transition shadow-sm"
                     >
                       <Users className="h-5 w-5" />
                       <span>Ver Todos los Leads</span>

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "prop-1",
+    "title": "Residencia Lujosa en San Pedro",
+    "price": 15500000,
+    "location": "San Pedro Garza García, NL",
+    "description": "Espectacular residencia de diseño contemporáneo con acabados de lujo, amplios espacios y vistas inmejorables.",
+    "beds": 4,
+    "baths": 5,
+    "sqftConstruction": 450,
+    "sqftLand": 600,
+    "parking": 3,
+    "images": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1200"
+    ],
+    "status": "Available",
+    "isActive": true,
+    "createdAt": 1670000000000
+  },
+  {
+    "id": "prop-2",
+    "title": "Penthouse Exclusivo con Vista al Mar",
+    "price": 8900000,
+    "location": "Playa del Carmen, Quintana Roo",
+    "description": "Increíble penthouse ubicado a pocos pasos del mar caribe. Amenidades de primer nivel y rentabilidad garantizada.",
+    "beds": 3,
+    "baths": 3,
+    "sqftConstruction": 180,
+    "sqftLand": 180,
+    "parking": 2,
+    "images": [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1200"
+    ],
+    "status": "Available",
+    "isActive": true,
+    "createdAt": 1669000000000
+  },
+  {
+    "id": "prop-3",
+    "title": "Casa de Campo en Valle de Bravo",
+    "price": 12200000,
+    "location": "Valle de Bravo, Estado de México",
+    "description": "Relájate en esta hermosa casa de campo rodeada de naturaleza. Ideal para fines de semana en familia.",
+    "beds": 5,
+    "baths": 4,
+    "sqftConstruction": 350,
+    "sqftLand": 1200,
+    "parking": 4,
+    "images": [
+      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80&w=1200"
+    ],
+    "status": "Available",
+    "isActive": true,
+    "createdAt": 1668000000000
+  }
+]
