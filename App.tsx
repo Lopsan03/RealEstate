@@ -8,6 +8,7 @@ import Listings from './pages/Listings';
 import PropertyDetail from './pages/PropertyDetail';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import { supabase } from './services/supabaseClient';
 import { User } from './types';
 
 // Scroll to top on route change
@@ -40,13 +41,40 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
+  useEffect(() => {
+    if (!supabase) return;
+
+    // Check for existing Supabase session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({ username: session.user.email || 'Admin', isAuthenticated: true });
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({ username: session.user.email || 'Admin', isAuthenticated: true });
+        localStorage.setItem('prosper_auth', JSON.stringify({ username: session.user.email, isAuthenticated: true }));
+      } else {
+        setUser(null);
+        localStorage.removeItem('prosper_auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleLogin = (u: { username: string }) => {
     const newUser = { ...u, isAuthenticated: true };
     setUser(newUser);
     localStorage.setItem('prosper_auth', JSON.stringify(newUser));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     setUser(null);
     localStorage.removeItem('prosper_auth');
   };

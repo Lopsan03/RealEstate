@@ -23,10 +23,14 @@ const PropertyDetail: React.FC = () => {
   const qrWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (id) {
-      const p = storageService.getProperties().find(item => item.id === id);
-      if (p) setProperty(p);
-    }
+    const fetchProperty = async () => {
+      if (id) {
+        const props = await storageService.getProperties();
+        const p = props.find(item => item.id === id);
+        if (p) setProperty(p);
+      }
+    };
+    fetchProperty();
   }, [id]);
 
   // Generate QR via public QR API (fallback to serializing rendered SVG)

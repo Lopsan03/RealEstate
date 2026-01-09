@@ -1,16 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, MapPin, Award, Heart } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import ContactForm from '../components/ContactForm';
 import { storageService } from '../services/storageService';
+import { Property } from '../types';
 import { AGENT_NAME, AGENT_WHATSAPP, BRAND_NAME } from '../constants';
 
 const Home: React.FC = () => {
-  const featuredProperties = storageService.getProperties()
-    .filter(p => p.isActive)
-    .slice(0, 3);
+  const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      const props = await storageService.getProperties();
+      setFeaturedProperties(props.filter(p => p.isActive).slice(0, 3));
+    };
+    fetchProperties();
+  }, []);
 
   return (
     <div className="flex flex-col">

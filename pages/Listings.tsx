@@ -16,7 +16,11 @@ const Listings: React.FC = () => {
   const [minBeds, setMinBeds] = useState('All');
 
   useEffect(() => {
-    setProperties(storageService.getProperties());
+    const fetchProperties = async () => {
+      const props = await storageService.getProperties();
+      setProperties(props);
+    };
+    fetchProperties();
   }, []);
 
   const filteredProperties = properties.filter(p => {

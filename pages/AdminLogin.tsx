@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, User as UserIcon } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
 import { BRAND_NAME, AGENT_NAME } from '../constants';
 
 interface AdminLoginProps {
@@ -8,31 +9,61 @@ interface AdminLoginProps {
 }
 
 const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
-  const [user, setUser] = useState('');
+  const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (!supabase) {
+      // Fallback to local auth if Supabase is not configured
+      if (email === 'admin' && pass === 'prosper2024') {
+        onLogin({ username: AGENT_NAME });
+      } else {
+        setError('Credenciales inválidas. Intenta admin / prosper2024');
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pass })
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password: pass,
       });
 
-      if (res.ok) {
-        // store admin password locally so we can send it in write requests
-        if (typeof window !== 'undefined') localStorage.setItem('admin_pass', pass);
-        onLogin({ username: AGENT_NAME });
-        return;
+      if (authError) {
+        console.error('Supabase auth error:', authError);
+        throw authError;
       }
 
-      setError('Credenciales inválidas. Intenta nuevamente.');
-    } catch (err) {
-      console.error('Login error', err);
-      setError('Error de conexión. Intenta más tarde.');
+      if (data.user) {
+        // Check if user is in admins table
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (adminError || !adminData) {
+          await supabase.auth.signOut();
+          setError('Usuario no autorizado como administrador.');
+          setLoading(false);
+          return;
+        }
+
+        onLogin({ username: adminData.email || AGENT_NAME });
+      }
+    } catch (err: any) {
+      console.error('Login error details:', err);
+      const errorMsg = err.message || err.error_description || 'Error al iniciar sesión. Verifica tus credenciales.';
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,15 +86,18 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           )}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Usuario</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                {supabase ? 'Email' : 'Usuario'}
+              </label>
               <div className="relative">
                 <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
-                  type="text"
+                  type={supabase ? 'email' : 'text'}
                   required
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-all"
-                  value={user}
-                  onChange={(e) => setUser(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={supabase ? 'tu@email.com' : 'admin'}
                 />
               </div>
             </div>
@@ -83,9 +117,10 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           </div>
           <button
             type="submit"
-            className="w-full bg-amber-600 text-white font-bold py-4 rounded-xl hover:bg-amber-700 transition shadow-lg shadow-amber-600/20"
+            disabled={loading}
+            className="w-full bg-amber-600 text-white font-bold py-4 rounded-xl hover:bg-amber-700 transition shadow-lg shadow-amber-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Iniciar Sesión
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
         </form>
       </div>

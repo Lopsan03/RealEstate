@@ -8,7 +8,12 @@ const LEADS_KEY = 'prosper_leads';
 const getAdminPass = () => typeof window !== 'undefined' ? localStorage.getItem('admin_pass') : null;
 
 export const storageService = {
-  getProperties: async (): Promise<Property[]> => {
+  // Properties
+  async getProperties(): Promise<Property[]> {
+    // If Supabase is available, use it
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.getProperties();
+
     try {
       const res = await fetch('/api/properties');
       if (!res.ok) throw new Error('Network');
@@ -25,7 +30,10 @@ export const storageService = {
     }
   },
 
-  saveProperty: async (property: Property) => {
+  async saveProperty(property: Property) {
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.saveProperty(property);
+
     const adminPass = getAdminPass();
     try {
       const res = await fetch('/api/properties', {
@@ -49,7 +57,10 @@ export const storageService = {
     }
   },
 
-  deleteProperty: async (id: string) => {
+  async deleteProperty(id: string) {
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.deleteProperty(id);
+
     const adminPass = getAdminPass();
     try {
       const res = await fetch(`/api/properties/${id}`, {
@@ -68,20 +79,29 @@ export const storageService = {
     }
   },
 
-  // Leads remain local for now
-  getLeads: (): Lead[] => {
+  // Leads
+  async getLeads(): Promise<Lead[]> {
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.getLeads();
+
     const data = localStorage.getItem(LEADS_KEY);
     return data ? JSON.parse(data) : [];
   },
 
-  saveLead: (lead: Lead) => {
-    const leads = storageService.getLeads();
+  async saveLead(lead: Lead) {
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.saveLead(lead);
+
+    const leads = await storageService.getLeads();
     leads.unshift(lead);
     localStorage.setItem(LEADS_KEY, JSON.stringify(leads));
   },
 
-  updateLeadStatus: (id: string, status: Lead['status']) => {
-    const leads = storageService.getLeads();
+  async updateLeadStatus(id: string, status: Lead['status']) {
+    const sup = await import('./supabaseService').then(m => m.supabaseService).catch(() => null);
+    if (sup && sup.isEnabled()) return sup.updateLeadStatus(id, status);
+
+    const leads = await storageService.getLeads();
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].status = status;

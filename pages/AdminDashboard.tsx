@@ -22,11 +22,29 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   useEffect(() => {
     refreshData();
+
+    // Subscribe to realtime updates when Supabase is enabled
+    let propsSub: { unsubscribe: () => void } | null = null;
+    let leadsSub: { unsubscribe: () => void } | null = null;
+
+    import('../services/supabaseService').then(({ supabaseService }) => {
+      if (supabaseService.isEnabled()) {
+        propsSub = supabaseService.subscribeToProperties(() => refreshData());
+        leadsSub = supabaseService.subscribeToLeads(() => refreshData());
+      }
+    }).catch(() => {});
+
+    return () => {
+      propsSub?.unsubscribe();
+      leadsSub?.unsubscribe();
+    };
   }, []);
 
   const refreshData = async () => {
-    setProperties(await storageService.getProperties());
-    setLeads(storageService.getLeads());
+    const props = await storageService.getProperties();
+    const leadsArr = await storageService.getLeads();
+    setProperties(props);
+    setLeads(leadsArr);
   };
 
   // Delete confirmation modal state
@@ -52,9 +70,9 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     setDeleteConfirmOpen(false);
   };
 
-  const handleUpdateLeadStatus = (id: string, status: Lead['status']) => {
-    storageService.updateLeadStatus(id, status);
-    refreshData();
+  const handleUpdateLeadStatus = async (id: string, status: Lead['status']) => {
+    await storageService.updateLeadStatus(id, status);
+    await refreshData();
   };
 
   const openModal = (property?: Property) => {
@@ -279,29 +297,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                       <span>Agregar Nueva Propiedad</span>
                     </button>
                     <button 
-                      onClick={async () => {
-                        if (!confirm('¿Deseas migrar los datos locales al servidor (supabase)? Esta acción puede sobrescribir datos en la base de datos.')) return;
-                        const props = JSON.parse(localStorage.getItem('prosper_properties') || '[]');
-                        const adminPass = typeof window !== 'undefined' ? localStorage.getItem('admin_pass') : null;
-                        try {
-                          const res = await fetch('/api/migrate', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(adminPass ? { 'x-admin-pass': adminPass } : {}) }, body: JSON.stringify(props) });
-                          if (!res.ok) throw new Error('Migration failed');
-                          const data = await res.json();
-                          alert(`Migración completada: ${data.inserted || 'ok'}`);
-                          refreshData();
-                        } catch (err) {
-                          alert('Migración fallida. Revisa la consola para más detalles.');
-                          console.error(err);
-                        }
-                      }}
-                      className="w-full bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-5 rounded-[24px] flex items-center justify-center space-x-3 transition shadow-sm"
-                    >
-                      <Users className="h-5 w-5" />
-                      <span>Migrar Datos</span>
-                    </button>
-                    <button 
                       onClick={() => setActiveTab('leads')}
-                      className="w-full hidden md:inline bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-5 rounded-[24px] flex items-center justify-center space-x-3 transition shadow-sm"
+                      className="w-full bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-5 rounded-[24px] flex items-center justify-center space-x-3 transition shadow-sm"
                     >
                       <Users className="h-5 w-5" />
                       <span>Ver Todos los Leads</span>
