@@ -13,6 +13,8 @@ export interface Property {
   images: string[];
   videoUrl?: string;
   status: 'Available' | 'Sold' | 'Reserved';
+  listingType: 'Venta' | 'Renta';
+  propertyType: 'Casa' | 'Apartamento' | 'Terreno';
   isActive: boolean;
   createdAt: number;
 }

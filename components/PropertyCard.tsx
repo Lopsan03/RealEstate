@@ -32,9 +32,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </Link>
       
       <div className="p-6 flex-grow flex flex-col">
-        <div className="flex items-center text-gray-500 text-xs mb-2">
-          <MapPin className="h-3 w-3 mr-1" />
-          <span className="truncate">{property.location}</span>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center text-gray-500 text-xs">
+            <MapPin className="h-3 w-3 mr-1" />
+            <span className="truncate">{property.location}</span>
+          </div>
+          <div className="flex gap-2">
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-full uppercase">
+              {property.listingType}
+            </span>
+            <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded-full uppercase">
+              {property.propertyType}
+            </span>
+          </div>
         </div>
         <Link to={`/propiedad/${property.id}`}>
           <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-600 transition-colors line-clamp-1">

@@ -25,7 +25,7 @@ const Home: React.FC = () => {
       <section className="relative h-[90vh] flex items-center overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1600607687940-4e2a09695d51?auto=format&fit=crop&q=80&w=2000"
+            src="/hero-background.jpg"
             alt="Real Estate Luxury"
             className="w-full h-full object-cover brightness-[0.4]"
             onLoad={(e) => (e.currentTarget.parentElement?.classList.add('opacity-100'))}

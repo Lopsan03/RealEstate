@@ -14,11 +14,33 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'properties' | 'leads'>('dashboard');
   const [properties, setProperties] = useState<Property[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'New' | 'Contacted' | 'Closed'>('All');
+  const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Partial<Property> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getFilteredLeads = () => {
+    let result = leads;
+
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter(l => 
+        l.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        l.phone.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'All') {
+      result = result.filter(l => l.status === statusFilter);
+    }
+
+    return result;
+  };
 
   useEffect(() => {
     refreshData();
@@ -92,6 +114,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         parking: undefined,
         images: [],
         status: 'Available',
+        listingType: 'Venta',
+        propertyType: 'Casa',
         isActive: true, // Default to active for new properties
         createdAt: Date.now()
       });
@@ -116,6 +140,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         parking: editingProperty.parking ?? 0,
         images: editingProperty.images ?? [],
         status: editingProperty.status ?? 'Available',
+        listingType: editingProperty.listingType ?? 'Venta',
+        propertyType: editingProperty.propertyType ?? 'Casa',
         isActive: editingProperty.isActive ?? true,
         createdAt: editingProperty.createdAt ?? Date.now()
       };
@@ -214,7 +240,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
+              <button onClick={() => setActiveTab('properties')} className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md hover:border-amber-200 transition cursor-pointer">
                 <div>
                   <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Propiedades Activas</p>
                   <p className="text-4xl font-bold text-gray-900">{activePropsCount}</p>
@@ -222,8 +248,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <div className="bg-amber-100 h-14 w-14 rounded-2xl flex items-center justify-center text-amber-600">
                   <Home className="h-8 w-8" />
                 </div>
-              </div>
-              <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
+              </button>
+              <button onClick={() => setActiveTab('leads')} className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md hover:border-blue-200 transition cursor-pointer">
                 <div>
                   <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Total Leads</p>
                   <p className="text-4xl font-bold text-gray-900">{totalLeadsCount}</p>
@@ -231,8 +257,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <div className="bg-blue-100 h-14 w-14 rounded-2xl flex items-center justify-center text-blue-600">
                   <Users className="h-8 w-8" />
                 </div>
-              </div>
-              <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
+              </button>
+              <button onClick={() => setActiveTab('properties')} className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md hover:border-green-200 transition cursor-pointer">
                 <div>
                   <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Total Propiedades</p>
                   <p className="text-4xl font-bold text-gray-900">{totalPropsCount}</p>
@@ -240,7 +266,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <div className="bg-green-100 h-14 w-14 rounded-2xl flex items-center justify-center text-green-600">
                   <TrendingUp className="h-8 w-8" />
                 </div>
-              </div>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -407,13 +433,83 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         {activeTab === 'leads' && (
           <div className="animate-in fade-in slide-in-from-right-4 duration-500">
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Prospectos & Leads</h2>
+            
+            {/* Search and Filter Bar */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 space-y-4">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Busca por nombre o teléfono..."
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none transition-all"
+                  onChange={(e) => {
+                    const filtered = leads.filter(l => 
+                      l.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+                      l.phone.toLowerCase().includes(e.target.value.toLowerCase())
+                    );
+                    setFilteredLeads(filtered);
+                    setSearchTerm(e.target.value);
+                  }}
+                  value={searchTerm}
+                />
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setStatusFilter('All')}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition ${
+                    statusFilter === 'All'
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Todos ({leads.length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('New')}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition ${
+                    statusFilter === 'New'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  No Contactados ({leads.filter(l => l.status === 'New').length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('Contacted')}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition ${
+                    statusFilter === 'Contacted'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Contactados ({leads.filter(l => l.status === 'Contacted').length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('Closed')}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition ${
+                    statusFilter === 'Closed'
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Cerrados ({leads.filter(l => l.status === 'Closed').length})
+                </button>
+              </div>
+            </div>
+
+            {/* Leads Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {leads.map(l => (
+              {getFilteredLeads().map(l => (
                 <div key={l.id} className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between">
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
                       <h3 className="text-xl font-bold text-gray-900">{l.name}</h3>
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">{l.status}</span>
+                      <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                        l.status === 'New' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                        l.status === 'Contacted' ? 'bg-green-50 text-green-600 border-green-100' :
+                        'bg-gray-50 text-gray-600 border-gray-100'
+                      }`}>
+                        {l.status === 'New' ? 'No Contactado' : l.status === 'Contacted' ? 'Contactado' : 'Cerrado'}
+                      </span>
                     </div>
                     <div className="space-y-2 text-sm text-gray-500">
                       <p className="flex items-center font-medium"><Mail className="h-4 w-4 mr-2 text-amber-500" /> {l.email}</p>
@@ -426,18 +522,38 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                       <p className="text-xs font-bold text-amber-600 uppercase tracking-widest pt-2">Interés en: {l.propertyName}</p>
                     )}
                   </div>
-                  <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between">
+                  <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between gap-3 flex-wrap">
                     <span className="text-xs text-gray-400">{new Date(l.createdAt).toLocaleString()}</span>
-                    <button 
-                      onClick={() => handleUpdateLeadStatus(l.id, 'Contacted')}
-                      className="bg-gray-100 hover:bg-amber-600 hover:text-white px-6 py-2.5 rounded-xl font-bold text-xs transition"
-                    >
-                      Marcar Contactado
-                    </button>
+                    <div className="flex gap-2">
+                      {l.propertyId && (
+                        <a 
+                          href={`/#/propiedad/${l.propertyId}`}
+                          className="bg-blue-100 hover:bg-blue-600 hover:text-white text-blue-600 px-4 py-2.5 rounded-xl font-bold text-xs transition"
+                        >
+                          Ver Propiedad
+                        </a>
+                      )}
+                      <button 
+                        onClick={() => handleUpdateLeadStatus(l.id, l.status === 'Contacted' ? 'New' : 'Contacted')}
+                        className={`px-4 py-2.5 rounded-xl font-bold text-xs transition ${
+                          l.status === 'Contacted'
+                            ? 'bg-gray-100 hover:bg-red-600 hover:text-white text-gray-700'
+                            : 'bg-gray-100 hover:bg-amber-600 hover:text-white text-gray-700'
+                        }`}
+                      >
+                        {l.status === 'Contacted' ? 'Desmarcar' : 'Marcar Contactado'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {getFilteredLeads().length === 0 && (
+              <div className="py-16 text-center">
+                <p className="text-gray-500 font-medium">No hay leads que coincidan con tu búsqueda.</p>
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -515,6 +631,33 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     onChange={e => setEditingProperty({...editingProperty, location: e.target.value})}
                   />
                 </div>
+
+                {/* Listing Type and Property Type */}
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tipo de Anuncio</label>
+                  <select
+                    className="w-full px-6 py-4 rounded-2xl border border-gray-200 bg-white text-gray-900 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 transition-all font-bold"
+                    value={editingProperty.listingType || 'Venta'}
+                    onChange={e => setEditingProperty({...editingProperty, listingType: e.target.value as 'Venta' | 'Renta'})}
+                  >
+                    <option value="Venta">Venta</option>
+                    <option value="Renta">Renta</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tipo de Propiedad</label>
+                  <select
+                    className="w-full px-6 py-4 rounded-2xl border border-gray-200 bg-white text-gray-900 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5 transition-all font-bold"
+                    value={editingProperty.propertyType || 'Casa'}
+                    onChange={e => setEditingProperty({...editingProperty, propertyType: e.target.value as 'Casa' | 'Apartamento' | 'Terreno'})}
+                  >
+                    <option value="Casa">Casa</option>
+                    <option value="Apartamento">Apartamento</option>
+                    <option value="Terreno">Terreno</option>
+                  </select>
+                </div>
+                
                 
                 {/* Specs Section */}
                 <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-5 gap-4 bg-[#F8F9FA] p-8 rounded-[32px] border border-gray-100">

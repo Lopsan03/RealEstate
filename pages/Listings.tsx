@@ -14,6 +14,8 @@ const Listings: React.FC = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minBeds, setMinBeds] = useState('All');
+  const [listingType, setListingType] = useState<'All' | 'Venta' | 'Renta'>('All');
+  const [propertyType, setPropertyType] = useState<'All' | 'Casa' | 'Apartamento' | 'Terreno'>('All');
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -33,14 +35,18 @@ const Listings: React.FC = () => {
     const matchesMinPrice = minPrice === '' || p.price >= Number(minPrice);
     const matchesMaxPrice = maxPrice === '' || p.price <= Number(maxPrice);
     const matchesBeds = minBeds === 'All' || p.beds >= Number(minBeds);
+    const matchesListingType = listingType === 'All' || p.listingType === listingType;
+    const matchesPropertyType = propertyType === 'All' || p.propertyType === propertyType;
 
-    return matchesSearch && matchesMinPrice && matchesMaxPrice && matchesBeds;
+    return matchesSearch && matchesMinPrice && matchesMaxPrice && matchesBeds && matchesListingType && matchesPropertyType;
   });
 
   const clearFilters = () => {
     setMinPrice('');
     setMaxPrice('');
     setMinBeds('All');
+    setListingType('All');
+    setPropertyType('All');
     setSearchTerm('');
   };
 
@@ -79,7 +85,32 @@ const Listings: React.FC = () => {
           {/* Expanded Filters Panel */}
           {showFilters && (
             <div className="mt-6 pt-6 border-t border-gray-100 animate-in slide-in-from-top-4 duration-300">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Tipo de Anuncio</label>
+                  <select
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-amber-500 outline-none text-sm bg-white"
+                    value={listingType}
+                    onChange={(e) => setListingType(e.target.value as any)}
+                  >
+                    <option value="All">Todos</option>
+                    <option value="Venta">Venta</option>
+                    <option value="Renta">Renta</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Tipo de Propiedad</label>
+                  <select
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-amber-500 outline-none text-sm bg-white"
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value as any)}
+                  >
+                    <option value="All">Todos</option>
+                    <option value="Casa">Casa</option>
+                    <option value="Apartamento">Apartamento</option>
+                    <option value="Terreno">Terreno</option>
+                  </select>
+                </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Precio Mínimo (MXN)</label>
                   <input
@@ -127,8 +158,6 @@ const Listings: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* Results Counter */}
         <div className="mb-8">
           <p className="text-gray-500 font-medium">Mostrando {filteredProperties.length} propiedades</p>
         </div>

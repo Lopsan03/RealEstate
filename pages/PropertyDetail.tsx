@@ -274,75 +274,91 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Top Gallery Section */}
-      <div className="relative h-[65vh] md:h-[80vh] bg-black group overflow-hidden">
+      <div className="relative h-[55vh] sm:h-[65vh] md:h-[80vh] bg-black group overflow-hidden">
         {/* Main Image Container */}
         <div className="absolute inset-0 transition-all duration-700 ease-in-out">
-          <img
-            src={property.images[activeImage] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200'}
-            alt={`${property.title} - Vista ${activeImage + 1}`}
-            className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
-          />
-        </div>
-        
-        {/* Navigation Arrows */}
-        {property.images.length > 1 && (
-          <>
-            <button 
-              onClick={prevImage}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-black/20 backdrop-blur-md hover:bg-amber-600 text-white p-3 md:p-4 rounded-full transition-all duration-300 transform hover:scale-110 opacity-0 group-hover:opacity-100 shadow-xl"
-              aria-label="Imagen anterior"
-            >
-              <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
-            </button>
-            <button 
-              onClick={nextImage}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-black/20 backdrop-blur-md hover:bg-amber-600 text-white p-3 md:p-4 rounded-full transition-all duration-300 transform hover:scale-110 opacity-0 group-hover:opacity-100 shadow-xl"
-              aria-label="Siguiente imagen"
-            >
-              <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
-            </button>
-          </>
-        )}
+            <img
+              src={property.images[activeImage] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200'}
+              alt={`${property.title} - Vista ${activeImage + 1}`}
+              className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+            />
+          </div>
+          
+          {/* Navigation Arrows */}
+          {property.images.length > 1 && (
+            <>
+              <button 
+                onClick={prevImage}
+                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-black/20 backdrop-blur-md hover:bg-amber-600 text-white p-3 md:p-4 rounded-full transition-all duration-300 transform hover:scale-110 opacity-0 group-hover:opacity-100 shadow-xl"
+                aria-label="Imagen anterior"
+              >
+                <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+              <button 
+                onClick={nextImage}
+                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-black/20 backdrop-blur-md hover:bg-amber-600 text-white p-3 md:p-4 rounded-full transition-all duration-300 transform hover:scale-110 opacity-0 group-hover:opacity-100 shadow-xl"
+                aria-label="Siguiente imagen"
+              >
+                <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+            </>
+          )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
-        
-        {/* Thumbnails Overlay */}
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex space-x-3 overflow-x-auto max-w-full px-8 no-scrollbar py-2">
-          {property.images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={(e) => {
-                e.preventDefault();
-                setActiveImage(idx);
-              }}
-              className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 transform ${
-                activeImage === idx 
-                  ? 'border-amber-500 scale-110 shadow-2xl z-10' 
-                  : 'border-white/20 opacity-50 hover:opacity-100 hover:scale-105'
-              }`}
-            >
-              <img src={img} className="w-full h-full object-cover pointer-events-none" alt={`Miniatura ${idx + 1}`} />
-            </button>
-          ))}
-        </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+          
+          {/* Thumbnails Overlay */}
+          <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-20 flex space-x-3 overflow-x-auto max-w-full px-4 sm:px-8 no-scrollbar py-2">
+            {property.images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveImage(idx);
+                }}
+                className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 transform ${
+                  activeImage === idx 
+                    ? 'border-amber-500 scale-110 shadow-2xl z-10' 
+                    : 'border-white/20 opacity-50 hover:opacity-100 hover:scale-105'
+                }`}
+              >
+                <img src={img} className="w-full h-full object-cover pointer-events-none" alt={`Miniatura ${idx + 1}`} />
+              </button>
+            ))}
+          </div>
 
-        {/* Property Header Overlay */}
-        <div className="absolute bottom-8 left-4 md:left-12 right-4 md:right-12 text-white flex flex-col md:flex-row justify-between items-end gap-4 z-10">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-bold mb-2 font-serif drop-shadow-lg">{property.title}</h1>
-            <div className="flex items-center space-x-4 text-gray-200">
-              <span className="flex items-center bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm">
-                <MapPin className="h-4 w-4 mr-1 text-amber-500" /> {property.location}
-              </span>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-400">
-                {activeImage + 1} / {property.images.length}
-              </span>
+          {/* Property Header Overlay - Hidden on mobile, shown on sm+ */}
+          <div className="hidden sm:block absolute bottom-8 left-4 md:left-12 right-4 md:right-12 text-white z-10">
+            <div className="mb-3 sm:mb-4">
+              <h1 className="text-3xl md:text-5xl font-bold mb-1 sm:mb-2 font-serif drop-shadow-lg leading-tight">{property.title}</h1>
+              <div className="flex flex-wrap items-center gap-2 text-gray-200 text-xs sm:text-sm">
+                <span className="flex items-center bg-black/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
+                  <MapPin className="h-4 w-4 mr-1 text-amber-500" /> {property.location}
+                </span>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-amber-400">
+                  {activeImage + 1} / {property.images.length}
+                </span>
+              </div>
+            </div>
+            <div className="bg-amber-600 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-2xl md:rounded-[28px] shadow-2xl border border-white/10 backdrop-blur-sm w-fit">
+              <p className="text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-amber-100 mb-1">Inversión</p>
+              <p className="text-lg sm:text-2xl md:text-3xl font-bold">${property.price.toLocaleString()}</p>
             </div>
           </div>
-          <div className="bg-amber-600 px-8 py-4 rounded-[28px] shadow-2xl border border-white/10 backdrop-blur-sm">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-100 mb-1">Inversión</p>
-            <p className="text-2xl md:text-3xl font-bold">${property.price.toLocaleString()}</p>
-          </div>
+        </div>
+
+      {/* Mobile Title/Location - Below carousel on small screens */}
+      <div className="sm:hidden bg-white px-4 py-6 border-b border-gray-100">
+        <h1 className="text-2xl font-bold mb-2 font-serif text-gray-900">{property.title}</h1>
+        <div className="flex items-center gap-2 text-gray-600 mb-4">
+          <MapPin className="h-4 w-4 text-amber-600" /> 
+          <span className="text-sm">{property.location}</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-600">
+            {activeImage + 1} / {property.images.length}
+          </span>
+        </div>
+        <div className="bg-amber-600 px-6 py-3 rounded-2xl w-fit">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-100 mb-1">Inversión</p>
+          <p className="text-2xl font-bold text-white">${property.price.toLocaleString()}</p>
         </div>
       </div>
 
