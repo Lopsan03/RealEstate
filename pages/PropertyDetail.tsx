@@ -159,7 +159,7 @@ const PropertyDetail: React.FC = () => {
   .images img:first-child{grid-column:1/-1;height:320px}
   .section{margin:20px 0}
   .section-title{font-size:16px;font-weight:700;color:#111;border-bottom:2px solid #f59e0b;padding-bottom:8px;margin-bottom:12px}
-  .features{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .features{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:12px}
   .feature{background:#fafafa;padding:12px;border-radius:8px;text-align:center}
   .feature .value{font-weight:700;font-size:20px;color:#111}
   .feature .label{font-size:12px;color:#6b6b6b;text-transform:uppercase;margin-top:6px}
@@ -204,6 +204,7 @@ const PropertyDetail: React.FC = () => {
       <div class="feature"><div class="value">${property?.baths ?? 0}</div><div class="label">Baños</div></div>
       <div class="feature"><div class="value">${property?.sqftConstruction ?? 0} m²</div><div class="label">Construcción</div></div>
       <div class="feature"><div class="value">${property?.sqftLand ?? 0} m²</div><div class="label">Terreno</div></div>
+      <div class="feature"><div class="value">${property?.parking ?? 0}</div><div class="label">Estacionamientos</div></div>
     </div>
   </div>
 
@@ -274,7 +275,7 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Top Gallery Section */}
-      <div className="relative h-[55vh] sm:h-[65vh] md:h-[80vh] bg-black group overflow-hidden">
+      <div className="relative h-[55vh] sm:h-[60vh] md:h-[70vh] lg:h-[75vh] bg-black group overflow-hidden">
         {/* Main Image Container */}
         <div className="absolute inset-0 transition-all duration-700 ease-in-out">
             <img
@@ -327,7 +328,7 @@ const PropertyDetail: React.FC = () => {
           </div>
 
           {/* Property Header Overlay - Hidden on mobile, shown on sm+ */}
-          <div className="hidden sm:block absolute bottom-8 left-4 md:left-12 right-4 md:right-12 text-white z-10">
+          <div className="hidden sm:block absolute bottom-8 sm:bottom-12 md:bottom-20 lg:bottom-24 left-4 md:left-12 right-4 md:right-12 text-white z-10">
             <div className="mb-3 sm:mb-4">
               <h1 className="text-3xl md:text-5xl font-bold mb-1 sm:mb-2 font-serif drop-shadow-lg leading-tight">{property.title}</h1>
               <div className="flex flex-wrap items-center gap-2 text-gray-200 text-xs sm:text-sm">
