@@ -12,6 +12,7 @@ import { storageService } from '../services/storageService';
 import { Property } from '../types';
 import ContactForm from '../components/ContactForm';
 import { AGENT_NAME, AGENT_PHONE, AGENT_WHATSAPP, AGENT_EMAIL, BRAND_NAME } from '../constants';
+import { updatePropertyMetaTags, resetMetaTags } from '../utils/metaTags';
 
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,10 +28,18 @@ const PropertyDetail: React.FC = () => {
       if (id) {
         const props = await storageService.getProperties();
         const p = props.find(item => item.id === id);
-        if (p) setProperty(p);
+        if (p) {
+          setProperty(p);
+          updatePropertyMetaTags(p);
+        }
       }
     };
     fetchProperty();
+    
+    // Reset meta tags on unmount
+    return () => {
+      resetMetaTags();
+    };
   }, [id]);
 
   // Generate QR via public QR API (fallback to serializing rendered SVG)
@@ -248,7 +257,7 @@ const PropertyDetail: React.FC = () => {
   const handleShare = async () => {
     const shareData = {
       title: property.title,
-      text: `Mira esta propiedad en ${BRAND_NAME}: ${property.title}`,
+      text: `Mira esta propiedad en ${BRAND_NAME}: ${property.title} - ${property.location}. Precio: $${property.price.toLocaleString()} MXN`,
       url: window.location.href
     };
 

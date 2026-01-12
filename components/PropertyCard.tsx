@@ -37,19 +37,21 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             <MapPin className="h-3 w-3 mr-1" />
             <span className="truncate">{property.location}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-full uppercase">
-              {property.listingType}
-            </span>
-            <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded-full uppercase">
-              {property.propertyType}
-            </span>
-          </div>
         </div>
         <Link to={`/propiedad/${property.id}`}>
-          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-amber-600 transition-colors line-clamp-1">
-            {property.title}
-          </h3>
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <h3 className="text-xl font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+              {property.title}
+            </h3>
+            <div className="flex gap-2">
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-full uppercase whitespace-nowrap">
+                {property.listingType}
+              </span>
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded-full uppercase whitespace-nowrap">
+                {property.propertyType}
+              </span>
+            </div>
+          </div>
         </Link>
         <p className="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed flex-grow">
           {property.description}

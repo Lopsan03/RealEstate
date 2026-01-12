@@ -7,11 +7,14 @@ import ContactForm from '../components/ContactForm';
 import { storageService } from '../services/storageService';
 import { Property } from '../types';
 import { AGENT_NAME, AGENT_WHATSAPP, BRAND_NAME } from '../constants';
+import { resetMetaTags } from '../utils/metaTags';
 
 const Home: React.FC = () => {
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
 
   useEffect(() => {
+    resetMetaTags();
+    
     const fetchProperties = async () => {
       const props = await storageService.getProperties();
       setFeaturedProperties(props.filter(p => p.isActive).slice(0, 3));
